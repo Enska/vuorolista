@@ -51,6 +51,7 @@ for hh in (path):
 urls['/'] = pageParser.defaultPage(contextRoot)
 urls['vuorolista'] = pageParser.vuoroLista(contextRoot)
 urls['userconf'] = pageParser.userConf(contextRoot)
+urls['calconf'] = pageParser.calConf(contextRoot)
 urls['savedata'] = pageParser.saveData(contextRoot, filledForm)
 urls['debug'] = pageParser.debugPage(contextRoot, messag)
 urls['error'] = pageParser.Error(contextRoot)

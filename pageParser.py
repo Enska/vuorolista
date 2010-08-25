@@ -60,7 +60,8 @@ class Render:
 	bsu = self.url(self.getBaseUrl(),'Etusivu')
 	bso = self.inUrl('vuorolista', 'Vuorolistat')
 	bsi = self.inUrl('userconf', 'Käyttäjät')
-	self.cssClass('%(1)s | %(2)s | %(3)s <br> Maintainer: enska AT medusapistetutkapistefi' % {'1':bsu, '2':bso, '3':bsi}, 'footer')
+	bsy = self.inUrl('calconf', 'Kalenterin asetukset')	
+	self.cssClass('%(1)s | %(2)s | %(3)s | %(4)s <br> Maintainer: enska AT medusapistetutkapistefi' % {'1':bsu, '2':bso, '3':bsi, '4':bsy}, 'footer')
 	# self.cssClass('Maintainer: enskaätmedusapistetutkapistefi | %s' % self.url('testi','Footer part'), 'footer')
         print "</body>"
         print "</html>"
@@ -164,7 +165,6 @@ class Render:
 	# @return: (str) contextRoot
 	return self.contextRoot
 
-
     def inUrl(self, url, text=None):
 	# @params: URL, alias for it
         return self.url(self.baseUrl+"/"+url, text)
@@ -216,6 +216,28 @@ class vuoroLista(Render) :
       
       
       self.footer()
+
+class calConf(Render) :
+  
+
+  def __init__(self, jep):
+    # Set basics for the page
+    Render.__init__(self, jep)
+    # TODO: Set curr date here and also the other "class-global" variables
+
+  def doPage(self, jep) :
+    self.header()
+    self.cssClass('Kalenterin asetukset | %s ' %self.url(self.baseUrl, 'Etusivu'),'header')
+    print "<p>Calendar config page <br><br></p>"
+       
+    print "<form name=\"input\" action=\"%s\" method=\"post\">" % (self.baseUrl+"/savedata")
+    print "User: <input type=\"text\" name=\"testi\"/>"
+    self.lB()
+
+    print "<input type=\"submit\" value=\"Lähetä\"/>";
+    print "</form>"
+     
+    self.footer()
 
 
 class userConf(Render) :
@@ -360,59 +382,31 @@ class userConf(Render) :
 class saveData(Render) :
   # NOTE: This one will be moved to dataHandler.py class
 
-   def __init__(self, ds, form):
-      # Save data on the directory which is given as paremeter
-      # Read files, create lists, then save or update file
-      self.workDir = ds
-      # Lets check that directory exists
-      if ( os.path.exists(self.workDir)):
-	# Yep, get files if there are any
-	self.oldFilesList = prepData(self.workDir)
-      else:
-	# ERROR, this dir doesnt exist, print to screen
-	print "ERROR: Directory (%s) doesnt exist (check your configs). " % self.workDir
+  def __init__(self, ds, form):
+    Render.__init__(self, ds)
+    # Save data on the directory which is given as paremeter
+    # Read files, create lists, then save or update file
+    self.workDir = ds
+    # Lets check that directory exists
+    if ( os.path.exists(self.workDir)):
+      # Yep, get files if there are any
+      self.oldFilesList = prepData(self.workDir)
+    else:
+      # ERROR, this dir doesnt exist, print to screen
+      print "ERROR: Directory (%s) doesnt exist (check your configs). " % self.workDir
 
-   def listConfigData(self):
-      # Read all the files for manipulating
-      return resList
+  def doPage(self, fform):
+    
+    # Show what we got
+    self.header()
+    self.cssClass('Info-sivu | %s ' %self.url(self.baseUrl, 'Etusivu'),'header')
+    #print self.getContextRoot()
+    print "<p>Tietojen käsittely <br><br></p>"
+    print fform   
+    self.lB()
 
-   def getConfigFiles(self):
-      return oldFilesList
-
-   # NOTE: This is to be moved to the dataHandler class
-   def saveDataToFile(self, filesDir, values):
-   # def saveDataToFile(self, oldFiles, values):
-      # Normal command to save data. Check is it new or old.
-      
-      # Old way
-      # oldFiles = self.oldFilesList
-      
-      self.filesDir = filesDir
-      self.values = values
-      workDir = self.workDir
-      # gl = re.compile('$(values['name']).conf')
-      aw = 'serverconfig-'+values['name']+'.conf'
-      gl = re.compile(aw)
-      print "Debug: saveDataToFile: saving data (%s) (compared to string %s" % (values['name'], aw)
-      # if ( len(filesDir) > 0 ):
-      for kl in (filesDir):
-	if ( gl.match(kl) ):
-	  # TODO: if the name is same (at the moment comp doesnt work). ASK the user 
-	  # if we owerwrite the old file. 
-	  #
-	  # Old value, update file (name is used for the filename) -> Nope, we overwrite the file...
-	  print "lala, this file (%s) needs updating..." % kl
-	else:
-	  # new file, save it
-	  # resFile = open(values["name"], "w")
-	  # This cannot be "wb", the file doesnt exist yet...
-	  # "b" is for binary write, no need or that!
-	  resFile = open(os.path.join(filesDir, 'serverconfig-%s.conf' % values['name']), 'w')
-	  for lk in (values):
-	    val = "%s:%s\n" % (lk, values[lk])
-	    resFile.write(val)
-	  resFile.close()
-
+     
+    self.footer()
 
 
 class prepConfigs(Render) :
