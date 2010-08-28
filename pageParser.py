@@ -179,6 +179,7 @@ class defaultPage(Render) :
    def __init__(self, jep):
       # Set basics for the page
       Render.__init__(self, jep)
+      # TODO: Read the calendar data from file (date, range, old edits).
 
    def doPage(self) :
       self.header()
@@ -227,14 +228,24 @@ class calConf(Render) :
 
   def doPage(self, jep) :
     self.header()
-    self.cssClass('Kalenterin asetukset | %s ' %self.url(self.baseUrl, 'Etusivu'),'header')
+    self.cssClass('Calendar settings | %s ' %self.url(self.baseUrl, 'Frontpage'),'header')
     print "<p>Calendar config page <br><br></p>"
        
-    print "<form name=\"input\" action=\"%s\" method=\"post\">" % (self.baseUrl+"/savedata")
-    print "User: <input type=\"text\" name=\"testi\"/>"
+    print "<form name=\"input\" action=\"%s\" method=\"post\">" % (self.baseUrl+"/createcal")
+    print "Calendar name: <input type=\"text\" name=\"name\"/>"
+    self.lB()
+    print "Workshift 1: <input type=\"text\" name=\"shift1\"/>"
+    self.lB()
+    print "Workshift 2: <input type=\"text\" name=\"shift2\"/>"
+    self.lB()
+    print "Workshift 3: <input type=\"text\" name=\"shift3\"/>"
+    self.lB()
+    print "Start date: <input type=\"text\" name=\"startdate\"/>"
+    self.lB()
+    print "End date: <input type=\"text\" name=\"enddate\"/>"
     self.lB()
 
-    print "<input type=\"submit\" value=\"Lähetä\"/>";
+    print "<input type=\"submit\" value=\"Create new calendar\"/>";
     print "</form>"
      
     self.footer()
@@ -380,13 +391,15 @@ class userConf(Render) :
       print "</form>"
 
 class saveData(Render) :
-  # NOTE: This one will be moved to dataHandler.py class
+  # NOTE: Actual data saving is done on dataHandler class.
 
   def __init__(self, ds, form):
     Render.__init__(self, ds)
-    # Save data on the directory which is given as paremeter
-    # Read files, create lists, then save or update file
     self.workDir = ds
+    if ( form ) :
+      self.form2 = form
+    else :
+      self.form2 = "No data received from form."
     # Lets check that directory exists
     if ( os.path.exists(self.workDir)):
       # Yep, get files if there are any
@@ -402,10 +415,49 @@ class saveData(Render) :
     self.cssClass('Info-sivu | %s ' %self.url(self.baseUrl, 'Etusivu'),'header')
     #print self.getContextRoot()
     print "<p>Tietojen käsittely <br><br></p>"
-    print fform   
+    print self.form2
     self.lB()
 
-     
+    self.footer()
+
+
+class createCal(Render) :
+  # NOTE: This is only meant to be used once, when creating new calendar
+
+  def __init__(self, ds, form):
+    Render.__init__(self, ds)
+    self.workDir = ds
+    if ( form ) :
+      self.form2 = form
+    else :
+      self.form2 = "No data received from form."
+    # Lets check that directory exists
+    if ( os.path.exists(self.workDir)):
+      # Yep, get files if there are any
+      self.oldFilesList = prepData(self.workDir)
+    else:
+      # ERROR, this dir doesnt exist, print to screen
+      print "ERROR: Directory (%s) doesnt exist (check your configs). " % self.workDir
+
+  def doPage(self, fform):
+    self.header()
+    self.cssClass('Info-page | %s ' %self.url(self.baseUrl, 'Frontpage'),'header')
+    #print self.getContextRoot()
+    print "<p>Creating new calendar <br><br></p>"
+    #print self.form2
+    self.lB()
+    print self.form2.keys()
+    self.lB()
+    calname = self.form2.getvalue("name")
+    calsf1 = self.form2.getvalue("shift1")
+    calsf2 = self.form2.getvalue("shift2")
+    calsf3 = self.form2.getvalue("shift3")
+    startd = self.form2.getvalue("startdate")
+    endd = self.form2.getvalue("enddate")
+    #calsf1 = self.form2.getvalue("name")
+    #calsf1 = self.form2.getvalue("name")
+    self.lB()
+
     self.footer()
 
 
