@@ -190,15 +190,78 @@ class defaultPage(Render) :
       self.footer()
 
 class vuoroLista(Render) :
+  
+  def __init__(self, jep):
+    # Set basics for the page
+    Render.__init__(self, jep)
+    # TODO: Set curr date here and also the other "class-global" variables
+    
+    self.confDir='data'
+    self.calFile="calen.txt"
+    self.errors=''
 
-#   def __init__(self, jep):
-      # Set basics for the page
-      #Render.__init__(self, jep)
-      # TODO: Set curr date here and also the other "class-global" variables
+    try:
+      # Let's read the stuff and prepare for problems
+      self.calObject = dataHandler.fileHandler(self.confDir, self.calFile)
+      self.confFiles = self.calObject.getFilesList()
 
-   def doPage(self, jep) :
-      self.header()
-      self.cssClass('Vuorolista sivusto | %s ' %self.url(self.baseUrl, 'Etusivu'),'header')
+    except IOError :
+      #  (self.confDir "/" self.userFile)
+      self.errors="File or directory (%s) doesnt exist." % ("jees")
+    #except Exception :
+      #self.errors="Exception raised by sub-class."
+
+  def doPage(self, jep) :
+    self.header()
+    self.cssClass('Vuorolista sivusto | %s ' %self.url(self.baseUrl, 'Etusivu'),'header')
+
+    if len(self.errors) > 0 :
+      # ERROR: We have found problem
+      print "There was some problems with. Reason should be below."
+      self.lB()
+      print "Reason of the problem: %s" % self.errors
+	
+    else :
+      
+      # can raise IndexError
+      print "obj: %s,%s" % (self.calObject.getValue(0,0,"date"), self.calObject.getValue(0,1,"date"))
+      self.lB()
+      self.l1 = len(self.calObject)
+      print "pit: %s" % self.l1
+      self.lB()
+      
+      self.kk = 0
+      
+      #while self.calObject.getValue(0,self.kk,"date") :
+      #for kk in self.calObject :
+      while self.kk < self.l1 :
+	try: 
+
+	  self.tableStart()
+	  for nametin in (namelist):
+	    self.a = [0,1,2]
+	   self.a[0] = "%s :" % nametin
+	   self.a[1] = "<input type=\"text\" name=\"%(1)s\" value=\"test-%(1)s\" />" % { '1':nametin }
+	   self.a[2] = "%(2)s" % { '2':dsli.get(nametin, "Errrr") }
+
+
+	  self.addListToTableRow(self.a)
+
+      self.tableEnd()
+      
+	  self.d1 = self.calObject.getValue(0,self.kk,"date")
+	  self.s1 = self.calObject.getValue(0,self.kk,"shift1")
+	  self.s2 = self.calObject.getValue(0,self.kk,"shift2")
+	  self.n1 = self.calObject.getValue(0,self.kk,"notes")
+	  self.a1 = self.calObject.getValue(0,self.kk,"away")
+	  print "pvm: %s, shifts: %s, %s, notes: %s, away: %s " % (self.d1, self.s1, self.s2, self.n1, self.a1)
+	  self.lB()
+	  self.kk += 1
+	except IndexError :
+	  print "Calendar list handling went out of bounds..."
+
+      
+    
       print "<p>Testi<br><br></p>"
       #calendar.weekday(2010,08,24)
       d1 = datetime.datetime.date(datetime.datetime.now())
@@ -215,8 +278,7 @@ class vuoroLista(Render) :
 	self.lB()
 	dd +=1
       
-      
-      self.footer()
+    self.footer()
 
 class calConf(Render) :
   
@@ -260,21 +322,34 @@ class userConf(Render) :
 
       self.confDir='etc'
       self.userFile="users.cfg"
+      self.errors=''
 
-      # Lets check that directory exists
-      if ( os.path.exists(self.confDir)) :
-	# Read config-file, create list of users
+      try:
+	# Let's read the stuff and prepare for problems
 	self.confObject = dataHandler.fileHandler(self.confDir, self.userFile)
 	self.confFiles = self.confObject.getFilesList()
+
+      except IOError :
+	#  (self.confDir "/" self.userFile)
+	self.errors="File or directory (%s) doesnt exist." % ("jees")
+      except Exception :
+	#print "dataHandler.testi() raised an exception"
+	#self.patho = self.confDir"/"self.userFile
+	self.errors="Exception raised by sub-class."
+
+
+      # Lets check that directory exists
+      #if ( os.path.exists(self.confDir)) :
+	# Read config-file, create list of users
 	#self.confData = self.confObject.getVariableInd(0)
 	#getDataFromFile(self.confObject)
 	#print "Debug: pituus -> %s " % (len(self.confFile))
 	#print "ny: %s" % self.confData
 	#self.printAll()
-      else:
+      #else:
 	# ERROR, this dir doesnt exist, create error message instead of resultlist
-	errmsg = ["ERROR: Directory ("+self.confDir+") doesnt exist..."] 
-	self.confData = errmsg
+	#errmsg = ["ERROR: Directory ("+self.confDir+") doesnt exist..."] 
+	#self.confData = errmsg
 
 
    def doPage(self, something) :
@@ -284,43 +359,57 @@ class userConf(Render) :
       self.cssClass('Config-page | %s ' %self.url(self.baseUrl, 'Frontpage'),'header')
 
       self.lB()
+      if len(self.errors) > 0 :
+	# ERROR: We have found problem
+	print "There was some problems with. Reason should be below."
+	self.lB()
+	print "Reason of the problem: %s" % self.errors
+	
+      else :
+	# Normal case, continue as usual
+	#print "Debug: possible param from html-form -> %s <br>" % something
+	self.lB()
+	print "obj: %s,%s" % (self.confObject.getValue(0,0,"name"), self.confObject.getValue(0,1,"name"))
+	self.lB()
+	print "pit: %s" % len(self.confObject)
+	self.lB()
 
-      #print "Debug: possible param from html-form -> %s <br>" % something
-      self.lB()
-      print "obj: %s,%s" % (self.confObject.getValue(0,0,"name"), self.confObject.getValue(0,1,"name"))
-      self.lB()
-      print "pit: %s" % len(self.confObject)
-      self.lB()
+	print "<form name=\"input\" action=\"%s\" method=\"post\">" % (self.baseUrl+"/update")
+	print "User: <input type=\"text\" name=\"server\"/>"
+	self.lB()
+	self.tableStart()
 
-      print "<form name=\"input\" action=\"%s\" method=\"post\">" % (self.baseUrl+"/update")
-      print "User: <input type=\"text\" name=\"server\"/>"
-      self.lB()
-      self.tableStart()
-
-      machlist = ["id", "user", "Full name"]
-      self.addListToTableRow(machlist)
-      #print "lala: %s" % self.confFile
-      cou = 0
-      aite = len(self.confObject)
-      while cou < aite :
-      
-	machlist[0] = cou + 1
-	mac = self.confObject.getValue(0,cou,"name")
-	#print mac
-	machlist[1] = "<b> %s </b>" % self.inUrl("server/" + mac, mac)
-	machlist[2] = "<input type=\"radio\" name=\"mac\" value=\"mac\" />"
+	machlist = ["id", "user", "Full name"]
 	self.addListToTableRow(machlist)
-	cou += 1
+	#print "lala: %s" % self.confFile
+	cou = 0
+	aite = len(self.confObject)
+	while cou < aite :
+      
+	  machlist[0] = cou + 1
+	  mac = self.confObject.getValue(0,cou,"name")
+	  #print mac
+	  machlist[1] = "<b> %s </b>" % self.inUrl("server/" + mac, mac)
+	  machlist[2] = "<input type=\"radio\" name=\"mac\" value=\"mac\" />"
+	  self.addListToTableRow(machlist)
+	  cou += 1
 
-      cou = 0
-      self.tableEnd()
-      # print "</input >"
+	cou = 0
+	self.tableEnd()
+	# print "</input >"
 
-      print "<input type=\"submit\" value=\"Modify\"/>";
-      print "</form>"
+	print "<input type=\"submit\" value=\"Modify\"/>";
+	print "</form>"
 
-      # testing the form page
-      #self.addMachineInfoForm("testi")
+	# testing the form page
+	#self.addMachineInfoForm("testi")
+
+	try:
+	  print "Trying to catch Exception"
+	  self.lB()
+	  self.confObject.testi()
+	except Exception :
+	  print "dataHandler.testi() raised an exception"
 
       self.footer()
 
@@ -457,7 +546,6 @@ class createCal(Render) :
     #calsf1 = self.form2.getvalue("name")
     #calsf1 = self.form2.getvalue("name")
     self.lB()
-
     self.footer()
 
 

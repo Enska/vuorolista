@@ -24,6 +24,9 @@ class fileHandler:
     # @param: The directry of the source-files
     # This one is mandatory. -> TODO: check the param
     self.sdir = sourceDirectory
+    if ( os.path.exists(self.sdir) ==  '' ) :
+      raise IOError
+    
     if (sourceFiles==None):
       # No file to read given, so we read ALL from sourceDirectory
       # TODO: No good, in this way we read also the hidden, binary etc. files... 
@@ -56,6 +59,10 @@ class fileHandler:
     #print "bl2: %s" % self.bigList[0][1].get("name", 'err')    
     #print "len: %s" % len(self.bigList)
 
+
+  def testi(self):
+    # just for testing, creates exception to be catched
+    raise exception
 
   def __len__(self):
     # if empty list, return 0
