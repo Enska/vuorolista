@@ -217,14 +217,14 @@ class vuoroLista(Render) :
 
     if len(self.errors) > 0 :
       # ERROR: We have found problem
-      print "There was some problems with. Reason should be below."
+      print "There was some problems with handling of data. Reason should be below."
       self.lB()
       print "Reason of the problem: %s" % self.errors
 	
     else :
       
       # can raise IndexError
-      print "obj: %s,%s" % (self.calObject.getValue(0,0,"date"), self.calObject.getValue(0,1,"date"))
+      #print "obj: %s,%s" % (self.calObject.getValue(0,0,"date"), self.calObject.getValue(0,1,"date"))
       self.lB()
       self.l1 = len(self.calObject)
       print "pit: %s" % self.l1
@@ -232,33 +232,34 @@ class vuoroLista(Render) :
       
       self.kk = 0
       
+      self.tableStart()
+      self.na = ["Pvm","Aamuvuoro","Iltavuoro","Huomiot","Poissa"]
+      self.addListToTableRow(self.na)
       #while self.calObject.getValue(0,self.kk,"date") :
       #for kk in self.calObject :
       while self.kk < self.l1 :
-	try: 
+	try:
+	  
+	  #print "pvm: %s, shifts: %s, %s, notes: %s, away: %s " % (self.d1, self.s1, self.s2, self.n1, self.a1)
+	  #self.lB()
 
-	  self.tableStart()
-	  for nametin in (namelist):
-	    self.a = [0,1,2]
-	   self.a[0] = "%s :" % nametin
-	   self.a[1] = "<input type=\"text\" name=\"%(1)s\" value=\"test-%(1)s\" />" % { '1':nametin }
-	   self.a[2] = "%(2)s" % { '2':dsli.get(nametin, "Errrr") }
-
-
+	  self.a = [0,1,2,3,4]
+	  self.a[0] = self.calObject.getValue(0,self.kk,"date")
+	  self.a[1] = self.calObject.getValue(0,self.kk,"shift1")
+	  self.a[2] = self.calObject.getValue(0,self.kk,"shift2")
+	  self.a[3] = self.calObject.getValue(0,self.kk,"notes")
+	  self.a[4] = self.calObject.getValue(0,self.kk,"away")
+	    
 	  self.addListToTableRow(self.a)
 
-      self.tableEnd()
-      
-	  self.d1 = self.calObject.getValue(0,self.kk,"date")
-	  self.s1 = self.calObject.getValue(0,self.kk,"shift1")
-	  self.s2 = self.calObject.getValue(0,self.kk,"shift2")
-	  self.n1 = self.calObject.getValue(0,self.kk,"notes")
-	  self.a1 = self.calObject.getValue(0,self.kk,"away")
-	  print "pvm: %s, shifts: %s, %s, notes: %s, away: %s " % (self.d1, self.s1, self.s2, self.n1, self.a1)
-	  self.lB()
+	  
 	  self.kk += 1
+      
 	except IndexError :
 	  print "Calendar list handling went out of bounds..."
+
+      # Ok, whole loop is done
+      self.tableEnd()  
 
       
     
@@ -291,20 +292,32 @@ class calConf(Render) :
   def doPage(self, jep) :
     self.header()
     self.cssClass('Calendar settings | %s ' %self.url(self.baseUrl, 'Frontpage'),'header')
-    print "<p>Calendar config page <br><br></p>"
+    print "<p>Uuden kalenterin asetukset.<br><br>Nämä asetetaan kerran, jonka jälkeen kalenterin muuttamiseksi pitää luoda uusi kalenteri.</p>"
        
     print "<form name=\"input\" action=\"%s\" method=\"post\">" % (self.baseUrl+"/createcal")
-    print "Calendar name: <input type=\"text\" name=\"name\"/>"
+    print "Kalenterin nimi: <input type=\"text\" name=\"name\"/> "
     self.lB()
-    print "Workshift 1: <input type=\"text\" name=\"shift1\"/>"
+    print "Työvuoro 1."
     self.lB()
-    print "Workshift 2: <input type=\"text\" name=\"shift2\"/>"
+    print "Nimi: <input type=\"text\" name=\"shift1name\"/> (esim. aamuvuoro)"
     self.lB()
-    print "Workshift 3: <input type=\"text\" name=\"shift3\"/>"
+    print " Tunnit : <input type=\"text\" name=\"shift1\"/> (esim. 04:00-12:00)"
     self.lB()
-    print "Start date: <input type=\"text\" name=\"startdate\"/>"
+    print "Työvuoro 2."
     self.lB()
-    print "End date: <input type=\"text\" name=\"enddate\"/>"
+    print "Nimi: <input type=\"text\" name=\"shift2name\"/> (esim. iltavuoro)"
+    self.lB()
+    print "Tunnit: <input type=\"text\" name=\"shift2\"/> (esim. 10:00-18:00)"
+    self.lB()
+    print "Työvuoro 3."
+    self.lB()
+    print "Nimi: <input type=\"text\" name=\"shift3name\"/> (esim. päivävuoro)"    
+    self.lB()
+    print "Tunnit: <input type=\"text\" name=\"shift3\"/> (esim. 08:00-16:00)"
+    self.lB()
+    print "Aloituspäivä <input type=\"text\" name=\"startdate\"/> (vvvv-kk-pp Mistä päivästä kalenteri alkaa.)"
+    self.lB()
+    print "Loppumispäivä <input type=\"text\" name=\"enddate\"/> (vvvv-kk-pp Mihin päivään asti kalenteri kestää. Max. 1 vuosi)"
     self.lB()
 
     print "<input type=\"submit\" value=\"Create new calendar\"/>";
@@ -413,71 +426,6 @@ class userConf(Render) :
 
       self.footer()
 
-   def addMachineInfoForm(self, mach):
-
-      self.eds = prepData("/var/www/tommi/data")
-      self.lili = self.eds.getFilesList()
-      print "Machine config-files: <br>"
-      for lin in self.lili:
-	 print "%s <br> \n" % lin
-
-      self.namelist = ['name', 'ip', 'dns', 'snmpver', 'snmpcomm', 'desc', '2', 'user', 'passu']
-
-      self.emplist = {}
-      self.emplist[self.namelist[0]] = "Unique, shor describing name of the machine (like dns name)."
-      self.emplist[self.namelist[1]] = "IP"
-      self.emplist[self.namelist[2]] = "DNS name of the machine."
-      self.emplist[self.namelist[3]] = "Version of snmp (v2 only)."
-      self.emplist[self.namelist[4]] = "Snmp community pharse."
-      self.emplist[self.namelist[5]] = "Description of the machine"
-      self.emplist[self.namelist[6]] = "tba"
-      self.emplist[self.namelist[7]] = "Your username for this page"
-      self.emplist[self.namelist[8]] = "Your password to save data"
-      
-
-      # testing the function, to see that the form works and saves dataFiles
-      # TODO: move the editing page on its own, either with old data or to have new data
-      self.doMachineForm(self.emplist)
-      # emplist["name", "ip", "phar", "snmpver"] = "koneen nimi", "koneen ip", "jotain", "jossain"
-      # print "list %s::%s" % (emplist.get("name", "nooooooo"), emplist.get("ip", "nooooooo"))
-      if (mach == "uusi") :
-	 # This is a new machine, no data to fetch
-	 print "New data..."
-	 #print "list %s" % emplist
-	 self.doMachineForm(emplist)
-
-      else:
-	 # This is an old machine, fetch data and show it to the user
-	 self.lB()
-	 print "Old data..."
-
-
-   def doMachineForm(self, datalist):
-      # Create form with the data we received
-      # maybe this could be done with javascript or similar?
-      dsli = datalist
-      namelist = self.namelist
-      self.lB()
-      target = (self.baseUrl+"/savedata")
-      # For testing, there is additional python class
-      # target = "http://localhost/tommi/formHandler.py"
-      print "<p>Give information for the new machine. This is send to %s </p>"  % target
-      print "<form name=\"id=newdata\" action=\"%s\" method=\"post\">" % target
-      self.tableStart()
-      for nametin in (namelist):
-	 self.a = [0,1,2]
-	 self.a[0] = "%s :" % nametin
-	 self.a[1] = "<input type=\"text\" name=\"%(1)s\" value=\"test-%(1)s\" />" % { '1':nametin }
-	 self.a[2] = "%(2)s" % { '2':dsli.get(nametin, "Errrr") }
-	 self.addListToTableRow(self.a)
-
-      self.tableEnd()
-      self.lB()
-      self.lB()
-
-      print "<input type=\"submit\" value=\"Save data\"/>";
-      print "<input type=\"reset\" value=\"Cancel (clear data)\"/>";
-      print "</form>"
 
 class saveData(Render) :
   # NOTE: Actual data saving is done on dataHandler class.
@@ -535,16 +483,39 @@ class createCal(Render) :
     print "<p>Creating new calendar <br><br></p>"
     #print self.form2
     self.lB()
-    print self.form2.keys()
+    print "Formin avaimet: %s" % self.form2.keys()
     self.lB()
-    calname = self.form2.getvalue("name")
-    calsf1 = self.form2.getvalue("shift1")
-    calsf2 = self.form2.getvalue("shift2")
-    calsf3 = self.form2.getvalue("shift3")
-    startd = self.form2.getvalue("startdate")
-    endd = self.form2.getvalue("enddate")
+    self.calname = self.form2.getvalue("name")
+    self.calsf1 = self.form2.getvalue("shift1")
+    self.calsf1name = self.form2.getvalue("shift1name")
+    self.calsf2 = self.form2.getvalue("shift2")
+    self.calsf2name = self.form2.getvalue("shift2name")
+    self.calsf3 = self.form2.getvalue("shift3")
+    self.calsf3name = self.form2.getvalue("shift3name")
+    self.startd = self.form2.getvalue("startdate")
+    self.endd = self.form2.getvalue("enddate")
     #calsf1 = self.form2.getvalue("name")
     #calsf1 = self.form2.getvalue("name")
+    
+    # Sanity checks:
+    # startd < ennd
+    if ( self.startd.count('-') != 2) or ( self.endd.count('-') != 2) :
+      # ERrror
+      print "päivämäärämuoto ei ole validi (vvvv-kk-pp)..."
+    self.staparts = self.startd.split("-")
+    self.endparts = self.endd.split("-")
+    # We should also check that every parts is interger type and length is correct
+    self.startnum = self.staparts[0],self.staparts[1],self.staparts[2]
+    self.endnum = self.endparts[0],self.endparts[1],self.endparts[2]
+
+    if () > ():
+      print "Error. Aloityspäivä _ei_ voi olla myöhäisempi kuin lopetuspäivä: %s - %s" % (self.startd, self.endd)
+    else :
+      # lets create some calendar
+      #self.hmm.Calendar(calendar.MONDAY)
+      #print calendar.itermonthdates(self.staparts[0], self.staparts[1])
+      print calendar.itermonthdates(2010,07)
+      
     self.lB()
     self.footer()
 
