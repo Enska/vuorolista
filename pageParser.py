@@ -499,22 +499,47 @@ class createCal(Render) :
     
     # Sanity checks:
     # startd < ennd
-    if ( self.startd.count('-') != 2) or ( self.endd.count('-') != 2) :
+    if ( self.startd.count('-') == 2) or ( self.endd.count('-') == 2) :
+      self.staparts = self.startd.split("-")
+      self.endparts = self.endd.split("-")
+    # We should also check that every parts is interger type and length is correct
+      self.startnum = self.staparts[0],self.staparts[1],self.staparts[2]
+      self.endnum = self.endparts[0],self.endparts[1],self.endparts[2]
+    else :
       # ERrror
       print "päivämäärämuoto ei ole validi (vvvv-kk-pp)..."
-    self.staparts = self.startd.split("-")
-    self.endparts = self.endd.split("-")
-    # We should also check that every parts is interger type and length is correct
-    self.startnum = self.staparts[0],self.staparts[1],self.staparts[2]
-    self.endnum = self.endparts[0],self.endparts[1],self.endparts[2]
+      # For the testing we use fixed dates
+      print "Debug: FIksatut päivät."
+      self.startnum = "2010-01-01"
+      self.endnum = "2010-03-31"
+      self.lB()
 
-    if () > ():
+
+    # TODO: subfunctions for the date calculation
+    # before that, no need to do checks
+    if (1) > (3):
       print "Error. Aloityspäivä _ei_ voi olla myöhäisempi kuin lopetuspäivä: %s - %s" % (self.startd, self.endd)
     else :
       # lets create some calendar
       #self.hmm.Calendar(calendar.MONDAY)
       #print calendar.itermonthdates(self.staparts[0], self.staparts[1])
-      print calendar.itermonthdates(2010,07)
+      #calendar.setfirstday(calendar.MONDAY)
+      #d2 = datetime.date.today()
+      #print 'd1 : %s' % d2
+      #print datetime.date.setfirstday(calendar.MONDAY)
+      #print calendar.itermonthdates(2010,07)
+      calendar.setfirstweekday(0)
+      #self.m1 = calendar.calendar(2010, 02)
+      self.m1 = calendar.monthcalendar(2010, 03)
+      self.m2 = calendar.month(2010, 04, 1, 1)
+      self.lB()
+      print self.m1
+      self.lB()
+      print "<pre>", self.m2 ,"</pre>"
+      #for d in self.m2:
+	#if d != "":
+	  #print d
+	  #self.lB()
       
     self.lB()
     self.footer()
