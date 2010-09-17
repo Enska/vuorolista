@@ -16,6 +16,7 @@ import random
 import re
 import struct
 import sys
+from types import *
 
 # Maybe we need these too?
 import pickle
@@ -481,6 +482,7 @@ class createCal(Render) :
     self.cssClass('Info-page | %s ' %self.url(self.baseUrl, 'Frontpage'),'header')
     #print self.getContextRoot()
     print "<p>Creating new calendar <br><br></p>"
+    self.wdays = ["ma","ti","ke","to","pe","la","su"]
     #print self.form2
     self.lB()
     print "Formin avaimet: %s" % self.form2.keys()
@@ -502,16 +504,29 @@ class createCal(Render) :
     if ( self.startd.count('-') == 2) or ( self.endd.count('-') == 2) :
       self.staparts = self.startd.split("-")
       self.endparts = self.endd.split("-")
-    # We should also check that every parts is interger type and length is correct
-      self.startnum = self.staparts[0],self.staparts[1],self.staparts[2]
-      self.endnum = self.endparts[0],self.endparts[1],self.endparts[2]
+      # We should also check that every parts is interger type and length is correct
+      print "type is:", type(self.staparts[0])
+      self.lB()
+      self.starty = int(self.staparts[0])
+      self.startm = int(self.staparts[1])
+      self.startd = int(self.staparts[2])
+      self.endy = int(self.endparts[0])
+      self.endm = int(self.endparts[1])
+      self.endd = int(self.endparts[2])
     else :
       # ERrror
       print "päivämäärämuoto ei ole validi (vvvv-kk-pp)..."
       # For the testing we use fixed dates
       print "Debug: FIksatut päivät."
-      self.startnum = "2010-01-01"
-      self.endnum = "2010-03-31"
+      self.starty = '2010'
+      self.startm = '01'
+      self.startd = '01'
+      self.endy = '2010'
+      self.endm = '03'
+      self.endd = '31'
+
+      #self.startnum = "2010-01-01"
+      #self.endnum = "2010-03-31"
       self.lB()
 
 
@@ -520,27 +535,36 @@ class createCal(Render) :
     if (1) > (3):
       print "Error. Aloityspäivä _ei_ voi olla myöhäisempi kuin lopetuspäivä: %s - %s" % (self.startd, self.endd)
     else :
-      # lets create some calendar
-      #self.hmm.Calendar(calendar.MONDAY)
-      #print calendar.itermonthdates(self.staparts[0], self.staparts[1])
-      #calendar.setfirstday(calendar.MONDAY)
-      #d2 = datetime.date.today()
-      #print 'd1 : %s' % d2
-      #print datetime.date.setfirstday(calendar.MONDAY)
-      #print calendar.itermonthdates(2010,07)
+      print "Debug: Values: %s, %s, %s - %s, %s, %s " % (self.starty, self.startm, self.startd, self.endy, self.endm, self.endd )
+
       calendar.setfirstweekday(0)
-      #self.m1 = calendar.calendar(2010, 02)
-      self.m1 = calendar.monthcalendar(2010, 03)
-      self.m2 = calendar.month(2010, 04, 1, 1)
-      self.lB()
-      print self.m1
-      self.lB()
-      print "<pre>", self.m2 ,"</pre>"
-      #for d in self.m2:
-	#if d != "":
-	  #print d
-	  #self.lB()
-      
+      while self.startm <= self.endm :
+	self.m1 = calendar.monthcalendar(self.starty, self.startm)
+	self.m2 = calendar.month(self.starty, self.startm, 1, 1)
+	print "<pre>", self.m2 ,"</pre>"
+	self.lB()
+	dd1 = 0
+	dd2 = 0
+	self.twoy = ""
+	self.woy = ""
+	for wee in self.m1:
+	  for day in wee:
+	    if ( day != 0 ) and ( dd1 <= 4 ) 	:
+	      self.twoy = datetime.date(self.starty, self.startm, self.m1[dd2][dd1])
+	      if (self.woy != self.twoy ):
+		print "<b>%s.</b> (woy: %s ja twoy %s)" % (self.twoy.isocalendar()[1], self.woy, self.twoy)
+		self.woy = datetime.date(self.starty, self.startm, self.m1[dd2][dd1])
+	      #if ( day != 0 ) and ( self.twoy != self.woy ) : 
+		# print ween no
+		#self.woy = datetime.date(self.starty, self.startm, self.m1[dd2][dd1])
+		#print "Week: %s" % self.twoy.isocalendar()[1]
+
+	      print "%s (%s.%s.%s)" % (self.wdays[dd1], self.m1[dd2][dd1], self.startm, self.starty)
+	      self.lB()
+	    dd1 += 1
+	  dd2 += 1
+	  dd1 = 0
+	self.startm += 1
     self.lB()
     self.footer()
 
