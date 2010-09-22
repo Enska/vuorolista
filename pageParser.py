@@ -505,7 +505,6 @@ class createCal(Render) :
       self.staparts = self.startd.split("-")
       self.endparts = self.endd.split("-")
       # We should also check that every parts is interger type and length is correct
-      print "type is:", type(self.staparts[0])
       self.lB()
       self.starty = int(self.staparts[0])
       self.startm = int(self.staparts[1])
@@ -547,24 +546,29 @@ class createCal(Render) :
 	dd2 = 0
 	self.twoy = ""
 	self.woy = ""
+	self.tweekno = ""
 	for wee in self.m1:
 	  for day in wee:
-	    if ( day != 0 ) and ( dd1 <= 4 ) 	:
+	    if ( day != 0 ):
 	      self.twoy = datetime.date(self.starty, self.startm, self.m1[dd2][dd1])
-	      if (self.woy != self.twoy ):
-		print "<b>%s.</b> (woy: %s ja twoy %s)" % (self.twoy.isocalendar()[1], self.woy, self.twoy)
-		self.woy = datetime.date(self.starty, self.startm, self.m1[dd2][dd1])
-	      #if ( day != 0 ) and ( self.twoy != self.woy ) : 
-		# print ween no
-		#self.woy = datetime.date(self.starty, self.startm, self.m1[dd2][dd1])
-		#print "Week: %s" % self.twoy.isocalendar()[1]
+	      self.weekno = self.twoy.isocalendar()[1]
+	    if ( day != 0 ) and ( dd1 <= 4 ) :
+	      
+	      if (self.tweekno == "") or ( self.tweekno != self.weekno):
+		# Print week number
+		print "week <b>%s.</b> " % (self.weekno)
+		self.lB()
+		self.tweekno = self.weekno
 
+	      # print date
 	      print "%s (%s.%s.%s)" % (self.wdays[dd1], self.m1[dd2][dd1], self.startm, self.starty)
 	      self.lB()
 	    dd1 += 1
 	  dd2 += 1
 	  dd1 = 0
+
 	self.startm += 1
+
     self.lB()
     self.footer()
 
